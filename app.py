@@ -4,6 +4,7 @@ import os
 import signal
 import faulthandler
 faulthandler.enable()
+import urllib.request
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QCommandLineOption, QCommandLineParser
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
@@ -73,7 +74,6 @@ class MainWindow(QMainWindow):
         self.process.readyReadStandardOutput.connect(self.dod)
         self.process.finished.connect(self.donee)
         self.clickedydo()
-        self.installer()
     def dod(self):
         data = self.process.readAllStandardOutput().data().decode("utf-8", errors='ignore')
         self.fodd(data)
@@ -99,6 +99,7 @@ class MainWindow(QMainWindow):
         print(self.widget.text())
         if self.process.state() == QProcess.ProcessState.Running:
             return
+        self.installer()
         theresta = ["-oL", "-eL", "yt-dlp", "-P","~/Videos/"]
         if self.process.state() == QProcess.ProcessState.Running:
             return
@@ -119,11 +120,10 @@ class MainWindow(QMainWindow):
         print(thingyy, theresta)
         self.process.start(thingyy, theresta)
     def clickedydo(self):
-        print(self.urla)
-        print(type(self.urla))
         if self.process.state() == QProcess.ProcessState.Running:
             return
         if self.urla:
+            self.installer()
             theresta = ["-oL", "-eL", "yt-dlp", "-P","~/Videos/"]
             if self.process.state() == QProcess.ProcessState.Running:
                 return
