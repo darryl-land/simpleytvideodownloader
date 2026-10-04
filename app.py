@@ -19,6 +19,7 @@ from PyQt6.QtWidgets import (
     QWidget,
     QTextEdit,
     QMessageBox,
+    QButtonGroup
 )
 os.environ["QT_LOGGING_RULES"] = "*.warning=false"
 class MainWindow(QMainWindow):
@@ -31,7 +32,7 @@ class MainWindow(QMainWindow):
         self.widget.setPlaceholderText("Enter your YouTube video URL")
         self.outputer = QTextEdit(self)
         self.outputer.setReadOnly(True)
-        self.widget.returnPressed.connect(self.entereda)
+        self.widget.returnPressed.connect(self.clickedy)
         layout = QVBoxLayout()
         layoutb = QHBoxLayout()
         label = QLabel("Simple YT Video Downloader")
@@ -51,8 +52,15 @@ class MainWindow(QMainWindow):
         midget = QWidget()
         midget.setLayout(layoutb)
         layout.addWidget(midget)
-        self.cap = QCheckBox(text="Enable auto-generated english captions")
+        self.cap = QCheckBox("Embed auto-generated english captions")
         layout.addWidget(self.cap)
+        self.sponsorygroup = QButtonGroup()
+        self.sponsorygroup.setExclusive(True)
+        sponsorstuff = ["Mark segments with sponsors with SponsorBlock", "Remove sponsors with SponsorBlock"]
+        for stuffys in sponsorstuff:
+            checkboxy = QCheckBox(stuffys)
+            layout.addWidget(checkboxy)
+            self.sponsorygroup.addButton(checkboxy)
         fidget = QWidget()
         fidget.setLayout(layout)
         self.setCentralWidget(fidget)
@@ -86,23 +94,6 @@ class MainWindow(QMainWindow):
                     pass
         print(text)
         self.outputer.insertPlainText(text)
-    def entereda(self):
-        print("Return pressed!")
-        print(self.widget.text())
-        theresta = ["-oL", "-eL", "yt-dlp", "-P","~/Videos/"]
-        if self.process.state() == QProcess.ProcessState.Running:
-            return
-        if self.cap.isChecked():
-            theresta.append("--embed-subs")
-            theresta.append("--write-auto-subs")
-            theresta.append("--sub-langs")
-            theresta.append("en")
-            theresta.append(self.widget.text())
-        else:
-            theresta.append(self.widget.text())
-        thingyy = "stdbuf"
-        print(thingyy, theresta)
-        self.process.start(thingyy, theresta)
     def clickedy(self):
         print(self.widget.text())
         if self.process.state() == QProcess.ProcessState.Running:
@@ -115,9 +106,14 @@ class MainWindow(QMainWindow):
             theresta.append("--write-auto-subs")
             theresta.append("--sub-langs")
             theresta.append("en")
-            theresta.append(self.widget.text())
-        else:
-            theresta.append(self.widget.text())
+        if self.sponsorygroup.checkedButton():
+            if self.sponsorygroup.checkedButton().text() == "Mark segments with sponsors with SponsorBlock":
+                theresta.append("--sponsorblock-mark")
+                theresta.append("sponsor")
+            else:
+                theresta.append("--sponsorblock-remove")
+                theresta.append("sponsor")
+        theresta.append(self.widget.text())
         thingyy = "stdbuf"
         print(thingyy, theresta)
         self.process.start(thingyy, theresta)
