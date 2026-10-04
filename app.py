@@ -100,6 +100,8 @@ class MainWindow(QMainWindow):
         if self.process.state() == QProcess.ProcessState.Running:
             return
         self.installer()
+        if os.path.exists(os.path.expanduser("~/.local/bin/yt-dlp")):
+                    os.chmod(os.path.expanduser("~/.local/bin/yt-dlp"), 0o775)
         theresta = ["-oL", "-eL", "yt-dlp", "-P","~/Videos/"]
         if self.process.state() == QProcess.ProcessState.Running:
             return
@@ -124,6 +126,8 @@ class MainWindow(QMainWindow):
             return
         if self.urla:
             self.installer()
+            if os.path.exists(os.path.expanduser("~/.local/bin/yt-dlp")):
+                    os.chmod(os.path.expanduser("~/.local/bin/yt-dlp"), 0o775)
             theresta = ["-oL", "-eL", "yt-dlp", "-P","~/Videos/"]
             if self.process.state() == QProcess.ProcessState.Running:
                 return
@@ -135,20 +139,19 @@ class MainWindow(QMainWindow):
         if exit_status == QProcess.ExitStatus.NormalExit:
             if exitcodde == 0:
                 finga = QMessageBox.information(self, "Simple YT Video Downloader", "Done downloading! Exited with exit code " + str(exitcodde))
-                if os.path.exists(os.path.expanduser("~/.local/bin/yt-dlp")):
-                    os.chmod(os.path.expanduser("~/.local/bin/yt-dlp"), 0o775)
             else:
                 finga = QMessageBox.warning(self, "Simple YT Video Downloader", "Uh oh! Something went wrong. Exit code " + str(exitcodde))
         else:
             finga = QMessageBox.critical(self, "Simple YT Video Downloader", "Ahhh! Something went very very wrong!")
     def installer(self):
-        if shutil.which("yt-dlp") is None:
+        if shutil.which("yt-dlp") is not None:
             installd = QMessageBox.question(self, "Warning", "yt-dlp was not found on your system. Select \"Yes\" if you want to install it in your ~/.local/bin directory.")
             if installd == QMessageBox.StandardButton.Yes:
                 os.makedirs(os.path.expanduser("~/.local/bin"), exist_ok=True)
                 listee = ["-O", os.path.expanduser("~/.local/bin/yt-dlp"), "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux"]
-                print("wget", listee)
-                self.process.start("wget", listee)
+                with urllib.request.urlopen("https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux") as fingabd:
+                    with open(os.path.expanduser("~/.local/bin/yt-dlp"), "wb") as ytdlpfiley:
+                        ytdlpfiley.write(fingabd.read())
 app = QApplication(sys.argv)
 app.setApplicationName("simpleytvideodownloader")
 app.setDesktopFileName("io.github.darrylland.simpleytvideodownloader")
