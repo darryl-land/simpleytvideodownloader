@@ -15,7 +15,7 @@ permissions:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
     - name: Install linux dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libegl1-mesa libgl1-mesa-glx libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-shape0 libxcb-xfixes0 xvfb libxcb-cursor0
+        sudo apt-get install -y libegl1 libgl1 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-shape0 libxcb-xfixes0 xvfb libxcb-cursor0
     - name: Build app with pyinstaller
       run: |
         pyinstaller --windowed app.py
