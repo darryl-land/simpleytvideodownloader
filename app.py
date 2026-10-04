@@ -27,6 +27,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         self.urla = marg
+        self.setObjectName("simpleytvideodownloader")
         self.setWindowTitle("Simple YT Video Downloader")
         self.widget = QLineEdit()
         self.widget.setPlaceholderText("Enter your YouTube video URL")
@@ -149,7 +150,8 @@ class MainWindow(QMainWindow):
                 print("wget", listee)
                 self.process.start("wget", listee)
 app = QApplication(sys.argv)
-app.setApplicationName("Simple YT Video Downloader")
+app.setApplicationName("simpleytvideodownloader")
+app.setDesktopFileName("io.github.darrylland.simpleytvideodownloader")
 app.setApplicationVersion("1.2.0")
 app.setStyle("Fusion") # just here for the time being until i put a theme
 parser = QCommandLineParser()
