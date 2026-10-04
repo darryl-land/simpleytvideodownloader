@@ -165,7 +165,7 @@ class MainWindow(QMainWindow):
 app = QApplication(sys.argv)
 app.setApplicationName("simpleytvideodownloader")
 app.setDesktopFileName("io.github.darrylland.simpleytvideodownloader")
-app.setApplicationVersion("1.2.0")
+app.setApplicationVersion("1.3.0")
 app.setStyle("Fusion") # just here for the time being until i put a theme
 parser = QCommandLineParser()
 parser.setApplicationDescription("Another very very very simple and easy to use PyQt6 video downloader app that uses yt-dlp")
