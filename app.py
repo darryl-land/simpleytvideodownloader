@@ -63,6 +63,11 @@ class MainWindow(QMainWindow):
             checkboxy = QCheckBox(stuffys)
             layout.addWidget(checkboxy)
             self.sponsorygroup.addButton(checkboxy)
+        self.updaterr = QPushButton()
+        self.updaterr.setText(" Update yt-dlp to latest version")
+        self.updaterr.setIcon(QIcon.fromTheme("system-software-update"))
+        self.updaterr.clicked.connect(self.updatee)
+        layout.addWidget(self.updaterr)
         fidget = QWidget()
         fidget.setLayout(layout)
         self.setCentralWidget(fidget)
@@ -133,7 +138,6 @@ class MainWindow(QMainWindow):
                 return
             theresta.extend(self.urla)
             thingyy = "stdbuf"
-            print(thingyy, theresta)
             self.process.start(thingyy, theresta)
     def donee(self, exitcodde, exit_status):
         if exit_status == QProcess.ExitStatus.NormalExit:
@@ -144,14 +148,20 @@ class MainWindow(QMainWindow):
         else:
             finga = QMessageBox.critical(self, "Simple YT Video Downloader", "Ahhh! Something went very very wrong!")
     def installer(self):
-        if shutil.which("yt-dlp") is not None:
+        if shutil.which("yt-dlp") is None:
             installd = QMessageBox.question(self, "Warning", "yt-dlp was not found on your system. Select \"Yes\" if you want to install it in your ~/.local/bin directory.")
             if installd == QMessageBox.StandardButton.Yes:
                 os.makedirs(os.path.expanduser("~/.local/bin"), exist_ok=True)
-                listee = ["-O", os.path.expanduser("~/.local/bin/yt-dlp"), "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux"]
                 with urllib.request.urlopen("https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux") as fingabd:
                     with open(os.path.expanduser("~/.local/bin/yt-dlp"), "wb") as ytdlpfiley:
                         ytdlpfiley.write(fingabd.read())
+    def updatee(self):
+        if self.process.state() == QProcess.ProcessState.Running:
+            return
+        if shutil.which("yt-dlp") is not None:
+            listea = ["-oL", "-eL", "yt-dlp", "-U"]
+            thingyd = "stdbuf"
+            self.process.start(thingyd, listea)
 app = QApplication(sys.argv)
 app.setApplicationName("simpleytvideodownloader")
 app.setDesktopFileName("io.github.darrylland.simpleytvideodownloader")
