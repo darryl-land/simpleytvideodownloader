@@ -158,7 +158,7 @@ class MainWindow(QMainWindow):
     def updatee(self):
         if self.process.state() == QProcess.ProcessState.Running:
             return
-        if shutil.which("yt-dlp") is not None:
+        if os.path.isfile(os.path.expanduser("~/.local/bin/yt-dlp")) is not None:
             listea = ["-oL", "-eL", "yt-dlp", "-U"]
             thingyd = "stdbuf"
             self.process.start(thingyd, listea)
