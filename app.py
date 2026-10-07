@@ -148,7 +148,7 @@ class MainWindow(QMainWindow):
         else:
             finga = QMessageBox.critical(self, "Simple YT Video Downloader", "Ahhh! Something went very very wrong!")
     def installer(self):
-        if shutil.which("yt-dlp") is None:
+        if os.path.isfile(os.path.expanduser("~/.local/bin/yt-dlp")) is None:
             installd = QMessageBox.question(self, "Warning", "yt-dlp was not found on your system. Select \"Yes\" if you want to install it in your ~/.local/bin directory.")
             if installd == QMessageBox.StandardButton.Yes:
                 os.makedirs(os.path.expanduser("~/.local/bin"), exist_ok=True)
