@@ -149,7 +149,7 @@ class MainWindow(QMainWindow):
             finga = QMessageBox.critical(self, "Simple YT Video Downloader", "Ahhh! Something went very very wrong!")
     def installer(self):
         if os.path.exists(os.path.expanduser("~/.local/bin/yt-dlp")) == False:
-            installd = QMessageBox.question(self, "Warning", "yt-dlp was not found on your system. Select \"Yes\" if you want to install it in your ~/.local/bin directory.")
+            installd = QMessageBox.question(self, "Warning", "yt-dlp is not installed in this app yet. Select \"Yes\" if you want to install it.")
             if installd == QMessageBox.StandardButton.Yes:
                 os.makedirs(os.path.expanduser("~/.local/bin"), exist_ok=True)
                 with urllib.request.urlopen("https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux") as fingabd:
@@ -165,8 +165,8 @@ class MainWindow(QMainWindow):
 app = QApplication(sys.argv)
 app.setApplicationName("simpleytvideodownloader")
 app.setDesktopFileName("io.github.darrylland.simpleytvideodownloader")
-app.setApplicationVersion("1.3.0")
-app.setStyle("Fusion") # just here for the time being until i put a theme
+app.setApplicationVersion("1.3.1")
+app.setStyle("Breeze")
 parser = QCommandLineParser()
 parser.setApplicationDescription("Another very very very simple and easy to use PyQt6 video downloader app that uses yt-dlp")
 parser.addHelpOption()
