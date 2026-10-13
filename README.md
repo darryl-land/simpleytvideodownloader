@@ -26,4 +26,4 @@ cd simpleytvideodownloader
 python3 app.py
 ```
 ## Screenshot
-![Screenshot](https://github.com/darryl-land/simpleytvideodownloader/blob/168a4b80cd1fea9236b459d04ac5021c12d15aff/screenshotthing.png)
+![Screenshot](https://raw.githubusercontent.com/darryl-land/simpleytvideodownloader/refs/heads/main/screenshotthing.png)
