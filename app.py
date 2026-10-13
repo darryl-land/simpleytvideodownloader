@@ -5,7 +5,7 @@ import signal
 import faulthandler
 faulthandler.enable()
 import urllib.request
-from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QCommandLineOption, QCommandLineParser
+from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QCommandLineOption, QCommandLineParser, QSettings
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QApplication,
@@ -20,13 +20,18 @@ from PyQt6.QtWidgets import (
     QWidget,
     QTextEdit,
     QMessageBox,
-    QButtonGroup
+    QButtonGroup,
+    QToolButton,
+    QDialog,
+    QDialogButtonBox
 )
 os.environ["QT_LOGGING_RULES"] = "*.warning=false"
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         signal.signal(signal.SIGINT, signal.SIG_DFL)
+        self.setting = QSettings()
+        QIcon.setThemeName("breeze")
         self.urla = marg
         self.setObjectName("simpleytvideodownloader")
         self.setWindowTitle("Simple YT Video Downloader")
@@ -54,20 +59,10 @@ class MainWindow(QMainWindow):
         midget = QWidget()
         midget.setLayout(layoutb)
         layout.addWidget(midget)
-        self.cap = QCheckBox("Embed auto-generated english captions")
-        layout.addWidget(self.cap)
-        self.sponsorygroup = QButtonGroup()
-        self.sponsorygroup.setExclusive(True)
-        sponsorstuff = ["Mark segments with sponsors with SponsorBlock", "Remove sponsors with SponsorBlock"]
-        for stuffys in sponsorstuff:
-            checkboxy = QCheckBox(stuffys)
-            layout.addWidget(checkboxy)
-            self.sponsorygroup.addButton(checkboxy)
-        self.updaterr = QPushButton()
-        self.updaterr.setText(" Update yt-dlp to latest version")
-        self.updaterr.setIcon(QIcon.fromTheme("system-software-update"))
-        self.updaterr.clicked.connect(self.updatee)
-        layout.addWidget(self.updaterr)
+        self.settingsb = QToolButton()
+        self.settingsb.setText("Settings")
+        self.settingsb.clicked.connect(self.opensetty)
+        layout.addWidget(self.settingsb)
         fidget = QWidget()
         fidget.setLayout(layout)
         self.setCentralWidget(fidget)
@@ -110,18 +105,17 @@ class MainWindow(QMainWindow):
         theresta = ["-oL", "-eL", "yt-dlp", "-P","~/Videos/"]
         if self.process.state() == QProcess.ProcessState.Running:
             return
-        if self.cap.isChecked():
+        if self.setting.value("cap", False, type=bool):
             theresta.append("--embed-subs")
             theresta.append("--write-auto-subs")
             theresta.append("--sub-langs")
             theresta.append("en")
-        if self.sponsorygroup.checkedButton():
-            if self.sponsorygroup.checkedButton().text() == "Mark segments with sponsors with SponsorBlock":
-                theresta.append("--sponsorblock-mark")
-                theresta.append("sponsor")
-            else:
-                theresta.append("--sponsorblock-remove")
-                theresta.append("sponsor")
+        if self.setting.value("marksponsor", False, type=bool):
+            theresta.append("--sponsorblock-mark")
+            theresta.append("sponsor")
+        if self.setting.value("blocksponsor", False, type=bool):
+            theresta.append("--sponsorblock-remove")
+            theresta.append("sponsor")
         theresta.append(self.widget.text())
         thingyy = "stdbuf"
         print(thingyy, theresta)
@@ -155,6 +149,69 @@ class MainWindow(QMainWindow):
                 with urllib.request.urlopen("https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux") as fingabd:
                     with open(os.path.expanduser("~/.local/bin/yt-dlp"), "wb") as ytdlpfiley:
                         ytdlpfiley.write(fingabd.read())
+    def opensetty(self):
+        self.setty = QDialog(self)
+        self.setty.setWindowTitle("Settings")
+        layout = QVBoxLayout()
+        self.cap = QCheckBox("Embed auto-generated english captions")
+        self.cap.setChecked(self.setting.value("cap", False, type=bool))
+        layout.addWidget(self.cap)
+        self.sponsorygroup = QButtonGroup()
+        self.sponsorygroup.setExclusive(True)
+        sponsorstuff = ["Mark segments with sponsors with SponsorBlock", "Remove sponsors with SponsorBlock"]
+        for stuffys in sponsorstuff:
+            checkboxy = QCheckBox(stuffys)
+            if stuffys == "Mark segments with sponsors with SponsorBlock":
+                checkboxy.setChecked(self.setting.value("marksponsor", False, type=bool))
+            else:
+                checkboxy.setChecked(self.setting.value("blocksponsor", False, type=bool))
+            layout.addWidget(checkboxy)
+            self.sponsorygroup.addButton(checkboxy)
+        self.updaterr = QPushButton()
+        self.updaterr.setText(" Update yt-dlp to latest version")
+        self.updaterr.setIcon(QIcon.fromTheme("system-software-update"))
+        self.updaterr.clicked.connect(self.updatee)
+        layout.addWidget(self.updaterr)
+        yesno = QDialogButtonBox.StandardButton.Apply | QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Reset
+        self.yesnoboxy = QDialogButtonBox(yesno)
+        self.yesnoboxy.clicked.connect(self.sava)
+        layout.addWidget(self.yesnoboxy)
+        self.setty.setLayout(layout)
+        self.setty.exec()
+    def sava(self, buttony):
+        whatbuton = self.yesnoboxy.standardButton(buttony)
+        if whatbuton == QDialogButtonBox.StandardButton.Ok:
+            self.setting.setValue("cap", self.cap.isChecked())
+            if self.sponsorygroup.checkedButton():
+                if self.sponsorygroup.checkedButton().text() == "Mark segments with sponsors with SponsorBlock":
+                    self.setting.setValue("marksponsor", True)
+                    self.setting.setValue("blocksponsor", False)
+                else:
+                    self.setting.setValue("blocksponsor", True)
+                    self.setting.setValue("marksponsor", False)
+            else:
+                self.setting.setValue("marksponsor", False)
+                self.setting.setValue("blocksponsor", False)
+            self.setty.accept()
+        elif whatbuton == QDialogButtonBox.StandardButton.Apply:
+            self.setting.setValue("cap", self.cap.isChecked())
+            if self.sponsorygroup.checkedButton():
+                if self.sponsorygroup.checkedButton().text() == "Mark segments with sponsors with SponsorBlock":
+                    self.setting.setValue("marksponsor", True)
+                    self.setting.setValue("blocksponsor", False)
+                else:
+                    self.setting.setValue("blocksponsor", True)
+                    self.setting.setValue("marksponsor", False)
+            else:
+                self.setting.setValue("marksponsor", False)
+                self.setting.setValue("blocksponsor", False)
+        elif whatbuton == QDialogButtonBox.StandardButton.Reset:
+            self.setting.clear()
+            self.setting.sync()
+            self.setty.reject()
+            self.opensetty()
+        else:
+            self.setty.reject()
     def updatee(self):
         if self.process.state() == QProcess.ProcessState.Running:
             return
@@ -163,9 +220,10 @@ class MainWindow(QMainWindow):
             thingyd = "stdbuf"
             self.process.start(thingyd, listea)
 app = QApplication(sys.argv)
+app.setOrganizationName("simpleytvideodownloader")
 app.setApplicationName("simpleytvideodownloader")
 app.setDesktopFileName("io.github.darrylland.simpleytvideodownloader")
-app.setApplicationVersion("1.3.1")
+app.setApplicationVersion("1.4.0")
 app.setStyle("Breeze")
 parser = QCommandLineParser()
 parser.setApplicationDescription("Another very very very simple and easy to use PyQt6 video downloader app that uses yt-dlp")
