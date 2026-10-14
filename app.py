@@ -5,7 +5,7 @@ import signal
 import faulthandler
 faulthandler.enable()
 import urllib.request
-from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QCommandLineOption, QCommandLineParser, QSettings
+from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QCommandLineOption, QCommandLineParser, QSettings, QStandardPaths
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QApplication,
@@ -35,6 +35,8 @@ class MainWindow(QMainWindow):
         self.urla = marg
         self.setObjectName("simpleytvideodownloader")
         self.setWindowTitle("Simple YT Video Downloader")
+        self.xdgdatahomeee = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppDataLocation)
+        print(self.xdgdatahomeee)
         self.widget = QLineEdit()
         self.widget.setPlaceholderText("Enter your YouTube video URL")
         self.outputer = QTextEdit(self)
@@ -68,7 +70,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(fidget)
         self.process = QProcess(self)
         env = QProcessEnvironment.systemEnvironment()
-        pathy = os.path.expanduser("~/.local/bin/") + ":" + env.value('PATH')
+        pathy = self.xdgdatahomeee + ":" + env.value('PATH')
         env.insert("PATH", pathy)
         self.process.setProcessEnvironment(env)
         self.process.readyReadStandardOutput.connect(self.dod)
@@ -100,8 +102,8 @@ class MainWindow(QMainWindow):
         if self.process.state() == QProcess.ProcessState.Running:
             return
         self.installer()
-        if os.path.exists(os.path.expanduser("~/.local/bin/yt-dlp")):
-                    os.chmod(os.path.expanduser("~/.local/bin/yt-dlp"), 0o775)
+        if os.path.exists(self.xdgdatahomeee + "/yt-dlp"):
+            os.chmod(self.xdgdatahomeee + "/yt-dlp", 0o775)
         theresta = ["-oL", "-eL", "yt-dlp", "-P","~/Videos/"]
         if self.process.state() == QProcess.ProcessState.Running:
             return
@@ -125,8 +127,8 @@ class MainWindow(QMainWindow):
             return
         if self.urla:
             self.installer()
-            if os.path.exists(os.path.expanduser("~/.local/bin/yt-dlp")):
-                    os.chmod(os.path.expanduser("~/.local/bin/yt-dlp"), 0o775)
+            if os.path.exists(self.xdgdatahomeee + "/yt-dlp"):
+                    os.chmod(self.xdgdatahomeee + "/yt-dlp", 0o775)
             theresta = ["-oL", "-eL", "yt-dlp", "-P","~/Videos/"]
             if self.process.state() == QProcess.ProcessState.Running:
                 return
@@ -142,12 +144,12 @@ class MainWindow(QMainWindow):
         else:
             finga = QMessageBox.critical(self, "Simple YT Video Downloader", "Ahhh! Something went very very wrong!")
     def installer(self):
-        if os.path.exists(os.path.expanduser("~/.local/bin/yt-dlp")) == False:
+        if os.path.exists(self.xdgdatahomeee + "/yt-dlp") == False:
             installd = QMessageBox.question(self, "Warning", "yt-dlp is not installed in this app yet. Select \"Yes\" if you want to install it.")
             if installd == QMessageBox.StandardButton.Yes:
-                os.makedirs(os.path.expanduser("~/.local/bin"), exist_ok=True)
+                os.makedirs(self.xdgdatahomeee, exist_ok=True)
                 with urllib.request.urlopen("https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux") as fingabd:
-                    with open(os.path.expanduser("~/.local/bin/yt-dlp"), "wb") as ytdlpfiley:
+                    with open(self.xdgdatahomeee + "/yt-dlp", "wb") as ytdlpfiley:
                         ytdlpfiley.write(fingabd.read())
     def opensetty(self):
         self.setty = QDialog(self)
@@ -215,7 +217,7 @@ class MainWindow(QMainWindow):
     def updatee(self):
         if self.process.state() == QProcess.ProcessState.Running:
             return
-        if os.path.exists(os.path.expanduser("~/.local/bin/yt-dlp")) == True:
+        if os.path.exists(self.xdgdatahomeee + "/yt-dlp") == True:
             listea = ["-oL", "-eL", "yt-dlp", "-U"]
             thingyd = "stdbuf"
             self.process.start(thingyd, listea)
