@@ -23,7 +23,7 @@ from PyQt6.QtWidgets import (
     QButtonGroup,
     QToolButton,
     QDialog,
-    QDialogButtonBox
+    QDialogButtonBox,
 )
 os.environ["QT_LOGGING_RULES"] = "*.warning=false"
 class MainWindow(QMainWindow):
@@ -118,6 +118,10 @@ class MainWindow(QMainWindow):
         if self.setting.value("blocksponsor", False, type=bool):
             theresta.append("--sponsorblock-remove")
             theresta.append("sponsor")
+        if self.setting.value("metdataa", False, type=bool):
+            theresta.append("--embed-metadata")
+        if self.setting.value("thummail", False, type=bool):
+            theresta.append("--embed-thumbnail")
         theresta.append(self.widget.text())
         thingyy = "stdbuf"
         print(thingyy, theresta)
@@ -169,6 +173,12 @@ class MainWindow(QMainWindow):
                 checkboxy.setChecked(self.setting.value("blocksponsor", False, type=bool))
             layout.addWidget(checkboxy)
             self.sponsorygroup.addButton(checkboxy)
+        self.metdataa = QCheckBox("Embed video metadata")
+        self.metdataa.setChecked(self.setting.value("metdataa", False, type=bool))
+        layout.addWidget(self.metdataa)
+        self.thummail = QCheckBox("Embed video thumbmail")
+        self.thummail.setChecked(self.setting.value("thummail", False, type=bool))
+        layout.addWidget(self.thummail)
         self.updaterr = QPushButton()
         self.updaterr.setText(" Update yt-dlp to latest version")
         self.updaterr.setIcon(QIcon.fromTheme("system-software-update"))
@@ -184,6 +194,8 @@ class MainWindow(QMainWindow):
         whatbuton = self.yesnoboxy.standardButton(buttony)
         if whatbuton == QDialogButtonBox.StandardButton.Ok:
             self.setting.setValue("cap", self.cap.isChecked())
+            self.setting.setValue("metdataa", self.metdataa.isChecked())
+            self.setting.setValue("thummail", self.thummail.isChecked())
             if self.sponsorygroup.checkedButton():
                 if self.sponsorygroup.checkedButton().text() == "Mark segments with sponsors with SponsorBlock":
                     self.setting.setValue("marksponsor", True)
@@ -197,6 +209,8 @@ class MainWindow(QMainWindow):
             self.setty.accept()
         elif whatbuton == QDialogButtonBox.StandardButton.Apply:
             self.setting.setValue("cap", self.cap.isChecked())
+            self.setting.setValue("metdataa", self.metdataa.isChecked())
+            self.setting.setValue("thummail", self.thummail.isChecked())
             if self.sponsorygroup.checkedButton():
                 if self.sponsorygroup.checkedButton().text() == "Mark segments with sponsors with SponsorBlock":
                     self.setting.setValue("marksponsor", True)
