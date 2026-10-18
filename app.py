@@ -24,6 +24,8 @@ from PyQt6.QtWidgets import (
     QToolButton,
     QDialog,
     QDialogButtonBox,
+    QComboBox,
+    QFormLayout
 )
 os.environ["QT_LOGGING_RULES"] = "*.warning=false"
 class MainWindow(QMainWindow):
@@ -104,14 +106,17 @@ class MainWindow(QMainWindow):
         self.installer()
         if os.path.exists(self.xdgdatahomeee + "/yt-dlp"):
             os.chmod(self.xdgdatahomeee + "/yt-dlp", 0o775)
-        theresta = ["-oL", "-eL", "yt-dlp", "-P","~/Videos/"]
+        theresta = ["-oL", "-eL", "yt-dlp", "-P","~/Videos/", "--ignore-errors", "--no-warnings"]
         if self.process.state() == QProcess.ProcessState.Running:
             return
         if self.setting.value("cap", False, type=bool):
-            theresta.append("--embed-subs")
+            theresta.append("--write-subs")
             theresta.append("--write-auto-subs")
+            theresta.append("--embed-subs")
             theresta.append("--sub-langs")
-            theresta.append("en")
+            theresta.append("en,en-orig")
+            theresta.append("--compat-options")
+            theresta.append("no-keep-subs")
         if self.setting.value("marksponsor", False, type=bool):
             theresta.append("--sponsorblock-mark")
             theresta.append("sponsor")
@@ -122,6 +127,25 @@ class MainWindow(QMainWindow):
             theresta.append("--embed-metadata")
         if self.setting.value("thummail", False, type=bool):
             theresta.append("--embed-thumbnail")
+        fooff = self.setting.value("fvformaty", 0, type=int)
+        if fooff == 1:
+            theresta.append("--remux-video")
+            theresta.append("webm")
+        elif fooff == 2:
+            theresta.append("--remux-video")
+            theresta.append("mp4")
+        elif fooff == 3:
+            theresta.append("--remux-video")
+            theresta.append("mov")
+        elif fooff == 4:
+            theresta.append("--remux-video")
+            theresta.append("mkv")
+        elif fooff == 5:
+            theresta.append("--remux-video")
+            theresta.append("flv")
+        elif fooff == 6:
+            theresta.append("--remux-video")
+            theresta.append("avi")
         theresta.append(self.widget.text())
         thingyy = "stdbuf"
         print(thingyy, theresta)
@@ -144,7 +168,7 @@ class MainWindow(QMainWindow):
             if exitcodde == 0:
                 finga = QMessageBox.information(self, "Simple YT Video Downloader", "Done downloading! Exited with exit code " + str(exitcodde))
             else:
-                finga = QMessageBox.warning(self, "Simple YT Video Downloader", "Uh oh! Something went wrong. Exit code " + str(exitcodde))
+                finga = QMessageBox.warning(self, "Simple YT Video Downloader", "Uh oh! Something went wrong. Exit code " + str(exitcodde) + "\n\n" + self.process.readAllStandardError().data().decode("utf-8", errors='ignore'))
         else:
             finga = QMessageBox.critical(self, "Simple YT Video Downloader", "Ahhh! Something went very very wrong!")
     def installer(self):
@@ -159,31 +183,45 @@ class MainWindow(QMainWindow):
         self.setty = QDialog(self)
         self.setty.setWindowTitle("Settings")
         layout = QVBoxLayout()
-        self.cap = QCheckBox("Embed auto-generated english captions")
+        layoutb = QFormLayout()
+        self.cap = QCheckBox()
         self.cap.setChecked(self.setting.value("cap", False, type=bool))
-        layout.addWidget(self.cap)
+        layoutb.addRow("Embed auto-generated english captions", self.cap)
         self.sponsorygroup = QButtonGroup()
         self.sponsorygroup.setExclusive(True)
         sponsorstuff = ["Mark segments with sponsors with SponsorBlock", "Remove sponsors with SponsorBlock"]
         for stuffys in sponsorstuff:
-            checkboxy = QCheckBox(stuffys)
+            checkboxy = QCheckBox()
             if stuffys == "Mark segments with sponsors with SponsorBlock":
                 checkboxy.setChecked(self.setting.value("marksponsor", False, type=bool))
             else:
                 checkboxy.setChecked(self.setting.value("blocksponsor", False, type=bool))
-            layout.addWidget(checkboxy)
+            layoutb.addRow(stuffys, checkboxy)
             self.sponsorygroup.addButton(checkboxy)
-        self.metdataa = QCheckBox("Embed video metadata")
+        self.metdataa = QCheckBox()
         self.metdataa.setChecked(self.setting.value("metdataa", False, type=bool))
-        layout.addWidget(self.metdataa)
-        self.thummail = QCheckBox("Embed video thumbmail")
+        layoutb.addRow("Embed video metadata", self.metdataa)
+        self.thummail = QCheckBox()
         self.thummail.setChecked(self.setting.value("thummail", False, type=bool))
-        layout.addWidget(self.thummail)
+        layoutb.addRow("Embed video thumbmail", self.thummail)
+        self.fvformaty = QComboBox()
+        self.fvformaty.addItem("Any")
+        self.fvformaty.addItem(".webm")
+        self.fvformaty.addItem(".mp4")
+        self.fvformaty.addItem(".mov")
+        self.fvformaty.addItem(".mkv")
+        self.fvformaty.addItem(".flv")
+        self.fvformaty.addItem(".avi")
+        self.fvformaty.setCurrentIndex(self.setting.value("fvformaty", 0, type=int))
+        layoutb.addRow("Prefered video file format", self.fvformaty)
         self.updaterr = QPushButton()
         self.updaterr.setText(" Update yt-dlp to latest version")
         self.updaterr.setIcon(QIcon.fromTheme("system-software-update"))
         self.updaterr.clicked.connect(self.updatee)
-        layout.addWidget(self.updaterr)
+        layoutb.addRow(self.updaterr)
+        widgetb = QWidget()
+        widgetb.setLayout(layoutb)
+        layout.addWidget(widgetb)
         yesno = QDialogButtonBox.StandardButton.Apply | QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Reset
         self.yesnoboxy = QDialogButtonBox(yesno)
         self.yesnoboxy.clicked.connect(self.sava)
@@ -196,6 +234,7 @@ class MainWindow(QMainWindow):
             self.setting.setValue("cap", self.cap.isChecked())
             self.setting.setValue("metdataa", self.metdataa.isChecked())
             self.setting.setValue("thummail", self.thummail.isChecked())
+            self.setting.setValue("fvformaty", self.fvformaty.currentIndex())
             if self.sponsorygroup.checkedButton():
                 if self.sponsorygroup.checkedButton().text() == "Mark segments with sponsors with SponsorBlock":
                     self.setting.setValue("marksponsor", True)
@@ -211,6 +250,7 @@ class MainWindow(QMainWindow):
             self.setting.setValue("cap", self.cap.isChecked())
             self.setting.setValue("metdataa", self.metdataa.isChecked())
             self.setting.setValue("thummail", self.thummail.isChecked())
+            self.setting.setValue("fvformaty", self.fvformaty.currentIndex())
             if self.sponsorygroup.checkedButton():
                 if self.sponsorygroup.checkedButton().text() == "Mark segments with sponsors with SponsorBlock":
                     self.setting.setValue("marksponsor", True)
