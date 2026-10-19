@@ -6,7 +6,7 @@ import faulthandler
 faulthandler.enable()
 import urllib.request
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QCommandLineOption, QCommandLineParser, QSettings, QStandardPaths
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -32,6 +32,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         signal.signal(signal.SIGINT, signal.SIG_DFL)
+        self.resize(572, self.height())
         self.setting = QSettings()
         QIcon.setThemeName("breeze")
         self.urla = marg
@@ -46,12 +47,13 @@ class MainWindow(QMainWindow):
         self.widget.returnPressed.connect(self.clickedy)
         layout = QVBoxLayout()
         layoutb = QHBoxLayout()
-        label = QLabel("Simple YT Video Downloader")
+        layoutc = QHBoxLayout()
+        '''label = QLabel("Simple YT Video Downloader")
         font = label.font()
         font.setPointSize(30)
         label.setFont(font)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(label)
+        layout.addWidget(label)'''
         layout.addWidget(self.outputer)
         self.baryy = QProgressBar()
         self.baryy.setRange(0, 1000)
@@ -66,7 +68,15 @@ class MainWindow(QMainWindow):
         self.settingsb = QToolButton()
         self.settingsb.setText("Settings")
         self.settingsb.clicked.connect(self.opensetty)
-        layout.addWidget(self.settingsb)
+        layoutc.addWidget(self.settingsb)
+        self.aboutb = QToolButton()
+        self.aboutb.setText("About")
+        self.aboutb.clicked.connect(self.openabouty)
+        layoutc.addWidget(self.aboutb)
+        layoutc.addStretch()
+        fliiget = QWidget()
+        fliiget.setLayout(layoutc)
+        layout.addWidget(fliiget)
         fidget = QWidget()
         fidget.setLayout(layout)
         self.setCentralWidget(fidget)
@@ -268,6 +278,48 @@ class MainWindow(QMainWindow):
             self.opensetty()
         else:
             self.setty.reject()
+    def openabouty(self):
+        self.abouty = QDialog(self)
+        self.abouty.setWindowTitle("About Simple YT Video Downloader")
+        layout = QVBoxLayout()
+        layoutb = QHBoxLayout()
+        namea = QLabel()
+        logoa = QPixmap("unnamed.png")
+        logoya = logoa.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        namea.setPixmap(logoya)
+        layoutb.addWidget(namea)
+        namea = QLabel("Simple YT Video Downloader")
+        font = namea.font()
+        font.setPointSize(18)
+        namea.setFont(font)
+        layoutb.addWidget(namea)
+        widget = QWidget()
+        widget.setLayout(layoutb)
+        layout.addWidget(widget)
+        label = QLabel('''Version 1.4.0
+
+Copyright (C) 2026 Darryl Tan
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.''')
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(label)
+        yesno = QDialogButtonBox.StandardButton.Close
+        yesnoboxya = QDialogButtonBox(yesno)
+        yesnoboxya.rejected.connect(self.abouty.reject)
+        layout.addWidget(yesnoboxya)
+        self.abouty.setLayout(layout)
+        self.abouty.exec()
     def updatee(self):
         if self.process.state() == QProcess.ProcessState.Running:
             return
