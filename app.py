@@ -25,7 +25,8 @@ from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QComboBox,
-    QFormLayout
+    QFormLayout,
+    QRadioButton
 )
 os.environ["QT_LOGGING_RULES"] = "*.warning=false"
 class MainWindow(QMainWindow):
@@ -178,7 +179,13 @@ class MainWindow(QMainWindow):
             if exitcodde == 0:
                 finga = QMessageBox.information(self, "Simple YT Video Downloader", "Done downloading! Exited with exit code " + str(exitcodde))
             else:
-                finga = QMessageBox.warning(self, "Simple YT Video Downloader", "Uh oh! Something went wrong. Exit code " + str(exitcodde) + "\n\n" + self.process.readAllStandardError().data().decode("utf-8", errors='ignore'))
+                finga = QMessageBox()
+                finga.setWindowTitle("Simple YT Video Downloader")
+                finga.setText("Uh oh! Something went wrong. Exit code " + str(exitcodde))
+                finga.setIcon(QMessageBox.Icon.Warning)
+                finga.setDetailedText(self.process.readAllStandardError().data().decode("utf-8", errors='ignore'))
+                finga.setStandardButtons(QMessageBox.StandardButton.Ok)
+                finga.exec()
         else:
             finga = QMessageBox.critical(self, "Simple YT Video Downloader", "Ahhh! Something went very very wrong!")
     def installer(self):
@@ -198,16 +205,21 @@ class MainWindow(QMainWindow):
         self.cap.setChecked(self.setting.value("cap", False, type=bool))
         layoutb.addRow("Embed auto-generated english captions", self.cap)
         self.sponsorygroup = QButtonGroup()
-        self.sponsorygroup.setExclusive(True)
-        sponsorstuff = ["Mark segments with sponsors with SponsorBlock", "Remove sponsors with SponsorBlock"]
-        for stuffys in sponsorstuff:
-            checkboxy = QCheckBox()
-            if stuffys == "Mark segments with sponsors with SponsorBlock":
-                checkboxy.setChecked(self.setting.value("marksponsor", False, type=bool))
-            else:
-                checkboxy.setChecked(self.setting.value("blocksponsor", False, type=bool))
-            layoutb.addRow(stuffys, checkboxy)
-            self.sponsorygroup.addButton(checkboxy)
+        checkboxya = QRadioButton()
+        checkboxyb = QRadioButton()
+        checkboxy = QRadioButton()
+        if self.setting.value("marksponsor", False, type=bool) or self.setting.value("blocksponsor", False, type=bool):
+            checkboxy.setChecked(False)
+        else:
+            checkboxy.setChecked(True)
+        layoutb.addRow("Don't use SponsorBlock", checkboxy)
+        self.sponsorygroup.addButton(checkboxy, 0)
+        checkboxya.setChecked(self.setting.value("marksponsor", False, type=bool))
+        layoutb.addRow("Mark segments with sponsors with SponsorBlock", checkboxya)
+        self.sponsorygroup.addButton(checkboxya, 1)
+        checkboxyb.setChecked(self.setting.value("blocksponsor", False, type=bool))
+        layoutb.addRow("Remove sponsors with SponsorBlock", checkboxyb)
+        self.sponsorygroup.addButton(checkboxyb, 2)
         self.metdataa = QCheckBox()
         self.metdataa.setChecked(self.setting.value("metdataa", False, type=bool))
         layoutb.addRow("Embed video metadata", self.metdataa)
@@ -223,7 +235,7 @@ class MainWindow(QMainWindow):
         self.fvformaty.addItem(".flv")
         self.fvformaty.addItem(".avi")
         self.fvformaty.setCurrentIndex(self.setting.value("fvformaty", 0, type=int))
-        layoutb.addRow("Prefered video file format", self.fvformaty)
+        layoutb.addRow("Prefered video file extension", self.fvformaty)
         self.updaterr = QPushButton()
         self.updaterr.setText(" Update yt-dlp to latest version")
         self.updaterr.setIcon(QIcon.fromTheme("system-software-update"))
@@ -246,15 +258,15 @@ class MainWindow(QMainWindow):
             self.setting.setValue("thummail", self.thummail.isChecked())
             self.setting.setValue("fvformaty", self.fvformaty.currentIndex())
             if self.sponsorygroup.checkedButton():
-                if self.sponsorygroup.checkedButton().text() == "Mark segments with sponsors with SponsorBlock":
+                if self.sponsorygroup.checkedId() == 1:
                     self.setting.setValue("marksponsor", True)
                     self.setting.setValue("blocksponsor", False)
-                else:
+                elif self.sponsorygroup.checkedId() == 2:
                     self.setting.setValue("blocksponsor", True)
                     self.setting.setValue("marksponsor", False)
-            else:
-                self.setting.setValue("marksponsor", False)
-                self.setting.setValue("blocksponsor", False)
+                else:
+                    self.setting.setValue("marksponsor", False)
+                    self.setting.setValue("blocksponsor", False)
             self.setty.accept()
         elif whatbuton == QDialogButtonBox.StandardButton.Apply:
             self.setting.setValue("cap", self.cap.isChecked())
@@ -262,15 +274,15 @@ class MainWindow(QMainWindow):
             self.setting.setValue("thummail", self.thummail.isChecked())
             self.setting.setValue("fvformaty", self.fvformaty.currentIndex())
             if self.sponsorygroup.checkedButton():
-                if self.sponsorygroup.checkedButton().text() == "Mark segments with sponsors with SponsorBlock":
+                if self.sponsorygroup.checkedId() == 1:
                     self.setting.setValue("marksponsor", True)
                     self.setting.setValue("blocksponsor", False)
-                else:
+                elif self.sponsorygroup.checkedId() == 2:
                     self.setting.setValue("blocksponsor", True)
                     self.setting.setValue("marksponsor", False)
-            else:
-                self.setting.setValue("marksponsor", False)
-                self.setting.setValue("blocksponsor", False)
+                else:
+                    self.setting.setValue("marksponsor", False)
+                    self.setting.setValue("blocksponsor", False)
         elif whatbuton == QDialogButtonBox.StandardButton.Reset:
             self.setting.clear()
             self.setting.sync()
@@ -296,7 +308,7 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         widget.setLayout(layoutb)
         layout.addWidget(widget)
-        label = QLabel('''Version 1.4.0
+        label = QLabel('''Version 1.5.0
 
 Copyright (C) 2026 Darryl Tan
 
@@ -331,7 +343,7 @@ app = QApplication(sys.argv)
 app.setOrganizationName("simpleytvideodownloader")
 app.setApplicationName("simpleytvideodownloader")
 app.setDesktopFileName("io.github.darrylland.simpleytvideodownloader")
-app.setApplicationVersion("1.4.0")
+app.setApplicationVersion("1.5.0")
 app.setStyle("Breeze")
 parser = QCommandLineParser()
 parser.setApplicationDescription("Another very very very simple and easy to use PyQt6 video downloader app that uses yt-dlp")
