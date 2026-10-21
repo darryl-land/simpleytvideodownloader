@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.darrylland.simpleytvideodownloader</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Simple YT Video Downloader</name>
+  <summary>Download YouTube videos</summary>
+  <description>
+    <p>
+      Another very very very simple and easy to use PyQt6 video downloader app that uses yt-dlp
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.darrylland.simpleytvideodownloader.desktop</launchable>
+  <developer_name>Darryl Tan</developer_name>
+</component>

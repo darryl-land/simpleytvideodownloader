@@ -1,0 +1,10 @@
+[Desktop Entry]
+# CC0-1.0
+Type=Application
+Name=Simple YT Video Downloader
+Comment=Another very very very simple and easy to use PyQt6 video downloader app that uses yt-dlp
+Exec=io.github.darrylland.simpleytvideodownloader
+Icon=io.github.darrylland.simpleytvideodownloader
+Categories=Utility
+Terminal=false
+StartupWMClass=simpleytvideodownloader
