@@ -120,6 +120,8 @@ class MainWindow(QMainWindow):
         theresta = ["-oL", "-eL", "yt-dlp", "-P","~/Videos/", "--ignore-errors", "--no-warnings"]
         if self.process.state() == QProcess.ProcessState.Running:
             return
+        if self.setting.value("audioy", False, type=bool):
+            theresta.append("--extract-audio")
         if self.setting.value("cap", False, type=bool):
             theresta.append("--write-subs")
             theresta.append("--write-auto-subs")
@@ -201,6 +203,9 @@ class MainWindow(QMainWindow):
         self.setty.setWindowTitle("Settings")
         layout = QVBoxLayout()
         layoutb = QFormLayout()
+        self.audioy = QCheckBox()
+        self.audioy.setChecked(self.setting.value("audioy", False, type=bool))
+        layoutb.addRow("Download audio instead of video", self.audioy)
         self.cap = QCheckBox()
         self.cap.setChecked(self.setting.value("cap", False, type=bool))
         layoutb.addRow("Embed auto-generated english captions", self.cap)
@@ -253,6 +258,7 @@ class MainWindow(QMainWindow):
     def sava(self, buttony):
         whatbuton = self.yesnoboxy.standardButton(buttony)
         if whatbuton == QDialogButtonBox.StandardButton.Ok:
+            self.setting.setValue("audioy", self.audioy.isChecked())
             self.setting.setValue("cap", self.cap.isChecked())
             self.setting.setValue("metdataa", self.metdataa.isChecked())
             self.setting.setValue("thummail", self.thummail.isChecked())
@@ -269,6 +275,7 @@ class MainWindow(QMainWindow):
                     self.setting.setValue("blocksponsor", False)
             self.setty.accept()
         elif whatbuton == QDialogButtonBox.StandardButton.Apply:
+            self.setting.setValue("audioy", self.audioy.isChecked())
             self.setting.setValue("cap", self.cap.isChecked())
             self.setting.setValue("metdataa", self.metdataa.isChecked())
             self.setting.setValue("thummail", self.thummail.isChecked())
