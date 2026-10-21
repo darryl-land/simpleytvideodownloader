@@ -1,0 +1,37 @@
+id: io.github.darrylland.simpleytvideodownloader
+runtime: org.kde.Platform
+runtime-version: '6.11'
+sdk: org.kde.Sdk
+base: com.riverbankcomputing.PyQt.BaseApp
+base-version: '6.11'
+command: io.github.darrylland.simpleytvideodownloader
+cleanup-commands:
+  - /app/cleanup-BaseApp.sh
+build-options:
+  env:
+    - BASEAPP_REMOVE_WEBENGINE=1
+finish-args:
+  - --socket=wayland
+  - --socket=x11
+  - --share=ipc
+  - --share=network
+  - --filesystem=xdg-videos
+modules:
+  - name: simpleytvideodownloader
+    buildsystem: simple
+    build-commands:
+      - install -d /app/bin/
+      - install -d /app/share/simpleytvideodownloader/
+      - install -d /app/share/applications/
+      - install -d /app/share/icons/hicolor/512x512/apps/
+      - install -d /app/share/metainfo/
+      - cp -r * /app/share/simpleytvideodownloader/
+      - install -m 644 io.github.darrylland.simpleytvideodownloader.desktop /app/share/applications/
+      - install -m 644 io.github.darrylland.simpleytvideodownloader.png /app/share/icons/hicolor/512x512/apps/
+      - install -m 644 io.github.darrylland.simpleytvideodownloader.metainfo.xml /app/share/metainfo/
+      - echo '#!/bin/sh' > /app/bin/io.github.darrylland.simpleytvideodownloader
+      - echo 'exec python3 /app/share/simpleytvideodownloader/app.py "$@"' >> /app/bin/io.github.darrylland.simpleytvideodownloader
+      - chmod +x /app/bin/io.github.darrylland.simpleytvideodownloader
+    sources:
+      - type: dir
+        path: .

@@ -1,6 +1,4 @@
 build/
-dist/
-*.spec
 __pycache__/
 *.pyc
 *.pyo
@@ -8,3 +6,6 @@ __pycache__/
 .*.kate-swp
 .swp.*
 *.*.kate-swp
+.flatpak-builder/
+repo/
+simpleytvideodownloader.flatpak
